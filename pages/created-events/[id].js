@@ -12,6 +12,7 @@ const CreatedEventDetails = () => {
   const [posts, setPosts] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [chatboxOpen, setChatboxOpen] = useState(false);
+  const [subevents, setSubevents] = useState([]);
 
   const postLike = async (id) => {
     const token = localStorage.getItem("token");
@@ -112,10 +113,32 @@ const CreatedEventDetails = () => {
       });
   };
 
+  const fetchSubEvents = async () => {
+    const token = localStorage.getItem("token");
+
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/sub-event-management/sub-event?event=${router?.query.id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log("***********", response.data.data);
+        setSubevents(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
     console.log(router.query.id);
     if (router.query.id) {
       fetchData();
+      fetchSubEvents();
       getPosts();
       getGuestsList();
     }
@@ -125,22 +148,27 @@ const CreatedEventDetails = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 text-white">
       <div className="grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col justify-center items-center">
-          <div className="w-10/12 rounded-2xl">
-            <div className="h-12 rounded-t-2xl bg-white px-5 flex justify-between items-center text-lg text-gray-700 font-semibold">
+          <div className="w-full md:w-10/12 rounded-2xl">
+            <div className="h-12 rounded-t-2xl bg-white px-5 flex justify-between items-center text-xs md:text-lg text-gray-700 font-semibold">
               <div>{data?.startTime.slice(0, 10)}</div>
               <div>
                 Time : {data?.startTime.slice(11, 16)} -{" "}
                 {data?.endTime.slice(11, 16)}
               </div>
             </div>
-            <div className="p-5 bg-white bg-opacity-20 rounded-b-2xl flex space-x-3">
+            <div className="p-3 md:p-5 bg-white bg-opacity-20 rounded-b-2xl flex space-x-3">
               <div className="">
-                <img className="h-32 w-32" src={data?.attachments[0]} />
+                <img
+                  className="h-24 w-24 md:h-32 md:w-32"
+                  src={data?.attachments[0]}
+                />
               </div>
               <div className="flex-1">
-                <div>{data?.name}</div>
-                <div className="text-gray-400">{data?.description}</div>
-                <div className="flex space-x-2">
+                <div className="font-semibold">{data?.name}</div>
+                <div className="text-xs md:text-base text-gray-400">
+                  {data?.description}
+                </div>
+                <div className="hidden md:flex space-x-2">
                   <div className="text-gray-400">
                     {data?.address?.addressLine1} ,
                   </div>
@@ -148,7 +176,7 @@ const CreatedEventDetails = () => {
                 </div>
                 <button
                   onClick={() => setIsOpen(true)}
-                  className="text-white bg-indigo-600 w-max px-3 mt-2 shadow-xl rounded-md"
+                  className="text-white bg-indigo-600 w-max px-3 py-1 mt-2 shadow-xl rounded-md"
                 >
                   View on map
                 </button>
@@ -156,18 +184,23 @@ const CreatedEventDetails = () => {
             </div>
           </div>
           <div className="my-4 font-semibold text-lg">Sub Events</div>
-          {data?.subEvents?.map((subevent, index) => (
+          {subevents?.map((subevent, index) => (
             <div
               key={index}
-              className="my-3 w-10/12 flex  px-4 py-2 items-center rounded-2xl bg-white bg-opacity-20"
+              className="mb-3 w-full md:w-10/12 flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-white bg-opacity-20"
             >
               <div className="w-1/3">
-                <img className="h-40" src={subevent?.attachments[0]} />
+                <img
+                  className="h-24 w-24 md:w-auto md:h-40"
+                  src={subevent?.attachments[0]}
+                />
               </div>
               <div className="flex-1">
-                <div className="font-bold text-xl mb-2">{subevent?.name}</div>
-                <div className="mb-2">{subevent?.description}</div>
-                <div className="flex justify-start space-x-6">
+                <div className="font-semibold md:text-xl mb-2">
+                  {subevent?.name}
+                </div>
+                <div className="text-xs md:text-base text-gray-400 mb-2">{subevent?.description}</div>
+                <div className="text-xs md:text-base flex justify-start space-x-6">
                   <div>{subevent.startTime.slice(0, 10)}</div>
                   <div>
                     {" "}

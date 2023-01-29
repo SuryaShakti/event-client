@@ -3,6 +3,10 @@ import Head from "next/head";
 import Header from "../src/components/Layout/Header";
 import Hero from "../src/components/Hero";
 import Categories from "../src/components/Categories";
+import Features from "../src/components/Features";
+import Testimonials from "../src/components/Testimonials";
+import Contact from "../src/components/Contact";
+import AppsLink from "../src/components/AppsLink";
 
 const Home: NextPage = () => {
   return (
@@ -19,6 +23,10 @@ const Home: NextPage = () => {
           <Hero />
         </div>
         <Categories />
+        <Features />
+        <Testimonials />
+        <Contact />
+        <AppsLink />
       </div>
     </div>
   );

@@ -10,6 +10,10 @@ function classNames(...classes) {
 export default function Header() {
   const router = useRouter();
   const [token, setToken] = useState("");
+  const [FeedbackOpen, setFeedbackOpen] = useState("");
+  const [text, settext] = useState("");
+  const [feedbackType, setFeedbackType] = useState("");
+  const [ratings, setRatings] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -111,10 +115,10 @@ export default function Header() {
                         <Menu.Item>
                           {({ active }) => (
                             <button
-                              href="#"
+                              onClick={() => setFeedbackOpen(true)}
                               className={classNames(
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
+                                "block px-4 py-2 text-sm w-full text-left text-gray-700"
                               )}
                             >
                               Feedback
@@ -124,10 +128,13 @@ export default function Header() {
                         <Menu.Item>
                           {({ active }) => (
                             <button
-                              href="#"
+                              onClick={() => {
+                                localStorage.removeItem("token");
+                                localStorage.removeItem("user");
+                              }}
                               className={classNames(
                                 active ? "bg-gray-100" : "",
-                                "block px-4 py-2 text-sm text-gray-700"
+                                "block px-4 py-2 text-sm w-full text-left text-gray-700"
                               )}
                             >
                               Sign out

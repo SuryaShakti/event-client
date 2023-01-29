@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import React from "react";
 import Header from "./Header";
+import Footer from "./Footer";
 
 const Layout = ({ children }) => {
   const router = useRouter();
@@ -11,6 +12,7 @@ const Layout = ({ children }) => {
 
       {router.pathname !== "/login" && <Header />}
       <div className="z-40">{children}</div>
+      {router.pathname !== "/login" && <Footer />}
     </div>
   );
 };

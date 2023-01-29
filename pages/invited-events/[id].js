@@ -122,22 +122,27 @@ const InvitedEventDetails = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 text-white">
       <div className="grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col items-center">
-          <div className="w-10/12 rounded-2xl">
-            <div className="h-12 rounded-t-2xl bg-white px-5 flex justify-between items-center text-lg text-gray-700 font-semibold">
+          <div className="w-full md:w-10/12 rounded-2xl">
+            <div className="h-12 rounded-t-2xl bg-white px-5 flex justify-between items-center text-xs md:text-lg text-gray-700 font-semibold">
               <div>{data?.startTime.slice(0, 10)}</div>
               <div>
                 Time : {data?.startTime.slice(11, 16)} -{" "}
                 {data?.endTime.slice(11, 16)}
               </div>
             </div>
-            <div className="p-5 bg-white bg-opacity-20 rounded-b-2xl flex space-x-3">
+            <div className="p-3 md:p-5 bg-white bg-opacity-20 rounded-b-2xl flex space-x-3">
               <div className="">
-                <img className="h-32 w-32" src={data?.attachments[0]} />
+                <img
+                  className="h-24 w-24 md:h-32 md:w-32"
+                  src={data?.attachments[0]}
+                />
               </div>
               <div className="flex-1">
-                <div>{data?.name}</div>
-                <div className="text-gray-400">{data?.description}</div>
-                <div className="flex space-x-2">
+                <div className="font-semibold">{data?.name}</div>
+                <div className="text-xs md:text-base text-gray-400">
+                  {data?.description}
+                </div>
+                <div className="hidden md:flex space-x-2">
                   <div className="text-gray-400">
                     {data?.address?.addressLine1} ,
                   </div>
@@ -145,7 +150,7 @@ const InvitedEventDetails = () => {
                 </div>
                 <button
                   onClick={() => setIsOpen(true)}
-                  className="text-white bg-indigo-600 w-max px-3 mt-2 shadow-xl rounded-md"
+                  className="text-white bg-indigo-600 w-max px-3 py-1 mt-2 shadow-xl rounded-md"
                 >
                   View on map
                 </button>
@@ -157,13 +162,16 @@ const InvitedEventDetails = () => {
             ? data?.subEvents?.map((subevent, index) => (
                 <div
                   key={index}
-                  className="my-3 w-10/12 flex  px-4 py-2 items-center rounded-2xl bg-white bg-opacity-20"
+                  className="mb-3 w-full md:w-10/12 flex space-x-2 px-4 py-2 md:items-center rounded-2xl bg-white bg-opacity-20"
                 >
                   <div className="w-1/3">
-                    <img className="h-40" src={subevent?.attachments[0]} />
+                    <img
+                      className="h-24 w-24 md:w-auto md:h-40"
+                      src={subevent?.attachments[0]}
+                    />
                   </div>
                   <div className="flex-1">
-                    <div className="font-bold text-xl mb-2">
+                    <div className="font-semibold md:text-xl mb-2">
                       {subevent?.name}
                     </div>
                     <div className="mb-2">{subevent?.description}</div>
@@ -270,7 +278,10 @@ const InvitedEventDetails = () => {
               <div className="bg-gray-200 w-32 h-32 rounded-xl"></div>
               {photos.map((photo, index) => (
                 <div>
-                  <img className="w-32 h-32 rounded-xl shadow-lg" src={photo.thumbnailImage} />
+                  <img
+                    className="w-32 h-32 rounded-xl shadow-lg"
+                    src={photo.thumbnailImage}
+                  />
                 </div>
               ))}
             </div>

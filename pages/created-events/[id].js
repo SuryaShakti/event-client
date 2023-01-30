@@ -3,7 +3,12 @@ import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { ChatAlt2Icon, ChatAltIcon, HeartIcon } from "@heroicons/react/outline";
+import {
+  ChatAlt2Icon,
+  ChatAltIcon,
+  HeartIcon,
+  UserCircleIcon,
+} from "@heroicons/react/outline";
 
 const CreatedEventDetails = () => {
   const [status, setStatus] = useState(0);
@@ -13,6 +18,17 @@ const CreatedEventDetails = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [chatboxOpen, setChatboxOpen] = useState(false);
   const [subevents, setSubevents] = useState([]);
+  const [photos, setPhotos] = useState([]);
+  const [guests, setGuests] = useState([]);
+  const [coHosts, setCoHosts] = useState([]);
+  const [guestsOpen, setGuestsOpen] = useState(false);
+  const [subEventsOpen, setSubEventsOpen] = useState(false);
+  const [coHostOpen, setCoHostOpen] = useState(false);
+  const [vendorsOpen, setVendorsOpen] = useState(false);
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const postLike = async (id) => {
     const token = localStorage.getItem("token");
@@ -59,6 +75,7 @@ const CreatedEventDetails = () => {
     await axios(config)
       .then(function (response) {
         console.log(response.data);
+        setGuests(response.data.data);
       })
       .catch(function (error) {
         console.log(error);
@@ -134,15 +151,178 @@ const CreatedEventDetails = () => {
       });
   };
 
+  const getPhotos = async () => {
+    const token = localStorage.getItem("token");
+
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/event-management/event-feed?event=${router.query.id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(JSON.stringify(response.data));
+        setPhotos(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const getCoHOstList = async () => {
+    const token = localStorage.getItem("token");
+    var config = {
+      method: "get",
+      url: `https://api.test.festabash.com/v1/event-management/event-cohost?event=${router.query.id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        setCoHosts(response.data.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
     console.log(router.query.id);
     if (router.query.id) {
       fetchData();
       fetchSubEvents();
       getPosts();
+      getPhotos();
       getGuestsList();
+      getCoHOstList();
     }
   }, [router.query.id]);
+
+  const addGuest = async () => {
+    const token = localStorage.getItem("token");
+    setErrorMessage("");
+    var data = JSON.stringify({
+      event: router.query.id,
+      guests: [
+        {
+          name: name,
+          phone: phone,
+        },
+      ],
+    });
+
+    var config = {
+      method: "post",
+      url: "https://api.test.festabash.com/v1/event-management/event-guest",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        const _data = guests;
+        setGuests([...guests, response.data[0]]);
+      })
+      .catch(function (error) {
+        console.log(error.response.data.message);
+        setErrorMessage(error.response.data.message);
+      });
+  };
+
+  const removeGuest = async (id) => {
+    const token = localStorage.getItem("token");
+    console.log(id);
+
+    var config = {
+      method: "delete",
+      url: `https://api.test.festabash.com/v1/event-management/event-guest/${id}?event=${router.query.id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        const _data = guests;
+        setGuests(
+          _data.filter((guest, index) => guest._id !== response.data._id)
+        );
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const addCoHost = async () => {
+    const token = localStorage.getItem("token");
+    setErrorMessage("");
+    var data = JSON.stringify({
+      event: router.query.id,
+      cohosts: [
+        {
+          name: name,
+          phone: phone,
+        },
+      ],
+    });
+
+    var config = {
+      method: "post",
+      url: "https://api.test.festabash.com/v1/event-management/event-cohost",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: data,
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        const _data = coHosts;
+        setCoHosts([...coHosts, response.data[0]]);
+      })
+      .catch(function (error) {
+        console.log(error.response.data.message);
+        setErrorMessage(error.response.data.message);
+      });
+  };
+
+  const removeCoHost = async (id) => {
+    const token = localStorage.getItem("token");
+
+    var config = {
+      method: "delete",
+      url: `https://api.test.festabash.com/v1/event-management/event-cohost/${id}?event=${router.query.id}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    await axios(config)
+      .then(function (response) {
+        console.log(response.data);
+        const _data = coHosts;
+        setCoHosts(
+          _data.filter((cohost, index) => cohost._id !== response.data._id)
+        );
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 text-white">
@@ -199,7 +379,9 @@ const CreatedEventDetails = () => {
                 <div className="font-semibold md:text-xl mb-2">
                   {subevent?.name}
                 </div>
-                <div className="text-xs md:text-base text-gray-400 mb-2">{subevent?.description}</div>
+                <div className="text-xs md:text-base text-gray-400 mb-2">
+                  {subevent?.description}
+                </div>
                 <div className="text-xs md:text-base flex justify-start space-x-6">
                   <div>{subevent.startTime.slice(0, 10)}</div>
                   <div>
@@ -211,11 +393,54 @@ const CreatedEventDetails = () => {
               </div>
             </div>
           ))}
-          <div>
-            <div className="my-4 font-semibold text-lg">More details</div>
+          <div className="w-full md:w-10/12">
+            <div className="my-4 text-center font-semibold text-lg">
+              More details
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 flex cursor-pointer hover:bg-slate-700 flex-col text-white justify-center items-center bg-white bg-opacity-20 rounded-2xl">
+                <img src={"/images/Calendar.svg"} />
+                <div>Date and Time</div>
+              </div>
+              <div
+                onClick={() => setGuestsOpen(true)}
+                className="p-3 flex cursor-pointer hover:bg-slate-700 flex-col text-white justify-center items-center bg-white bg-opacity-20 rounded-2xl"
+              >
+                <img src={"/images/guests.svg"} />
+                <div>Guests</div>
+              </div>
+              <div
+                onClick={() => setSubEventsOpen(true)}
+                className="p-3 flex cursor-pointer hover:bg-slate-700 flex-col text-white justify-center items-center bg-white bg-opacity-20 rounded-2xl"
+              >
+                <img src={"/images/Subevents.svg"} />
+                <div>Sub Events</div>
+              </div>
+              <div
+                onClick={() => setCoHostOpen(true)}
+                className="p-3 flex cursor-pointer hover:bg-slate-700 flex-col text-white justify-center items-center bg-white bg-opacity-20 rounded-2xl"
+              >
+                <img src={"/images/co-hostDetails.svg"} />
+                <div>Co-host details</div>
+              </div>
+              <div
+                onClick={() => setVendorsOpen(true)}
+                className="p-3 flex cursor-pointer hover:bg-slate-700 flex-col text-white justify-center items-center bg-white bg-opacity-20 rounded-2xl"
+              >
+                <img src={"/images/vendors.svg"} />
+                <div>Vendors</div>
+              </div>
+              <div
+                onClick={() => setBudgetOpen(true)}
+                className="p-3 flex cursor-pointer hover:bg-slate-700 flex-col text-white justify-center items-center bg-white bg-opacity-20 rounded-2xl"
+              >
+                <img src={"/images/Budget.svg"} />
+                <div>Budget</div>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="">
+        <div className="mt-10 md:mt-0">
           <div className=" w-full rounded-xl bg-white shadow grid grid-cols-2 h-10">
             <div
               onClick={() => setStatus(0)}
@@ -275,8 +500,20 @@ const CreatedEventDetails = () => {
                 </div>
               ))}
             </div>
+          ) : photos.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 mt-5 gap-3">
+              <div className="bg-gray-200 w-32 h-32 rounded-xl"></div>
+              {photos.map((photo, index) => (
+                <div>
+                  <img
+                    className="w-32 h-32 rounded-xl shadow-lg"
+                    src={photo.thumbnailImage}
+                  />
+                </div>
+              ))}
+            </div>
           ) : (
-            "Photos"
+            "No photos yet"
           )}
         </div>
       </div>
@@ -328,6 +565,264 @@ const CreatedEventDetails = () => {
                     >
                       Got it, thanks!
                     </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition appear show={guestsOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => {
+            setGuestsOpen(false);
+            setName("");
+            setPhone("");
+            setErrorMessage("");
+          }}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Guests
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <div>
+                      <div>
+                        <div>
+                          <label
+                            htmlFor="name"
+                            className="block text-sm font-medium text-gray-700"
+                          >
+                            Name
+                          </label>
+                          <div className="mt-1">
+                            <input
+                              type="name"
+                              name="name"
+                              id="name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              className="shadow-sm border p-2  focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                              placeholder="Enter your name"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="phone"
+                            className="block text-sm mt-1 font-medium text-gray-700"
+                          >
+                            Phone
+                          </label>
+                          <div className="mt-1">
+                            <input
+                              type="phone"
+                              name="phone"
+                              id="phone"
+                              value={phone}
+                              onChange={(e) => setPhone(e.target.value)}
+                              className="shadow-sm border p-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                              placeholder="Enter your phone number"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {errorMessage && (
+                        <div className="bg-red-400 rounded-lg w-full text-center text-xs text-white mt-2 p-2">
+                          {errorMessage}
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="inline-flex justify-center mt-6 w-full rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        onClick={() => addGuest()}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div>All Guests</div>
+                    {guests &&
+                      guests.map((guest, index) => (
+                        <div className="border-b w-full flex justify-between items-center py-2">
+                          <div className="flex flex-1 items-center space-x-3">
+                            <div>
+                              <UserCircleIcon className="w-7 text-gray-400" />
+                            </div>
+                            <div>
+                              <div>{guest.name}</div>
+                              <div className="text-xs text-gray-600">
+                                {guest.phone}
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => removeGuest(guest._id)}
+                            className="w-max px-2 py-1 bg-gray-300 text-xs rounded-md"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition appear show={coHostOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => {
+            setCoHostOpen(false);
+            setName("");
+            setPhone("");
+            setErrorMessage("");
+          }}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    Co Hosts
+                  </Dialog.Title>
+                  <div className="mt-2">
+                    <div>
+                      <div>
+                        <div>
+                          <label
+                            htmlFor="name"
+                            className="block text-sm font-medium text-gray-700"
+                          >
+                            Name
+                          </label>
+                          <div className="mt-1">
+                            <input
+                              type="name"
+                              name="name"
+                              id="name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              className="shadow-sm border p-2  focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                              placeholder="Enter your name"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="phone"
+                            className="block text-sm mt-1 font-medium text-gray-700"
+                          >
+                            Phone
+                          </label>
+                          <div className="mt-1">
+                            <input
+                              type="phone"
+                              name="phone"
+                              id="phone"
+                              value={phone}
+                              onChange={(e) => setPhone(e.target.value)}
+                              className="shadow-sm border p-2 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                              placeholder="Enter your phone number"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {errorMessage && (
+                        <div className="bg-red-400 rounded-lg w-full text-center text-xs text-white mt-2 p-2">
+                          {errorMessage}
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        className="inline-flex justify-center mt-6 w-full rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        onClick={() => addCoHost()}
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div>All Co Hosts</div>
+                    {coHosts &&
+                      coHosts.map((guest, index) => (
+                        <div className="border-b w-full flex justify-between items-center py-2">
+                          <div className="flex flex-1 items-center space-x-3">
+                            <div>
+                              <UserCircleIcon className="w-7 text-gray-400" />
+                            </div>
+                            <div>
+                              <div>{guest.name}</div>
+                              <div className="text-xs text-gray-600">
+                                {guest.phone}
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => removeCoHost(guest._id)}
+                            className="w-max px-2 py-1 bg-gray-300 text-xs rounded-md"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

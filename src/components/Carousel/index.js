@@ -15,6 +15,7 @@ const Carousel = ({ data }) => {
   }, [data]);
   return (
     <div className="overflow-x-hidden">
+      
       <Swiper
         slidesPerView={1}
         spaceBetween={30}
@@ -49,7 +50,7 @@ const Carousel = ({ data }) => {
       >
         {data?.data?.map((category, index) => (
           <SwiperSlide className="w-full bg-transparent rounded-md" key={index}>
-            <div className="w-full rounded-md shadow">
+            <div className="w-full bg-transparent rounded-md shadow">
               <img
                 src={category.avatar}
                 alt={category.title}

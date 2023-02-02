@@ -29,10 +29,10 @@ export default function Header() {
   ];
 
   return (
-    <Disclosure as="nav" className=" bg-black bg-opacity-40 shadow">
+    <Disclosure as="nav" className="fixed w-full z-50 bg-[#0A061D]   shadow ">
       {({ open }) => (
         <>
-          <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="z-50 max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex">
                 <div className="-ml-2 mr-2 flex items-center md:hidden">
